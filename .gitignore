@@ -1,0 +1,4 @@
+node_modules/
+session/
+server.log
+.wwebjs_cache/
