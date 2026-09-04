@@ -47,6 +47,28 @@ app.get('/status', (req, res) => {
   res.json({ ready });
 });
 
+app.get('/contacts', async (req, res) => {
+  if (!ready) return res.status(503).json({ error: 'WhatsApp client not ready yet' });
+  try {
+    const contacts = await client.getContacts();
+    res.json(contacts.filter((c) => c.name || c.pushname).map((c) => ({ id: c.id._serialized, name: c.name, pushname: c.pushname, isGroup: c.isGroup })));
+  } catch (err) {
+    console.error('getContacts failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/chats', async (req, res) => {
+  if (!ready) return res.status(503).json({ error: 'WhatsApp client not ready yet' });
+  try {
+    const chats = await client.getChats();
+    res.json(chats.map((c) => ({ id: c.id._serialized, name: c.name, isGroup: c.isGroup })));
+  } catch (err) {
+    console.error('getChats failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // POST /send { "number": "919876543210", "message": "hello" }
 // number is in international format without + or leading zeros
 app.post('/send', async (req, res) => {
